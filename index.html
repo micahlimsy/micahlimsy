@@ -1,275 +1,358 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Micah Lim</title>
 
 <style>
-:root{
-  --bg-top:#f2f2f2;
-  --bg-bottom:#8fb7d6;
-  --window:#ffffff;
-  --header:#4b4b4b;
-  --text:#333;
-  --accent:#ff8c00;
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-.dark{
-  --bg-top:#1e1e1e;
-  --bg-bottom:#3c6a8f;
-  --window:#2c2c2c;
-  --header:#444;
-  --text:#eee;
+body {
+  font-family: Helvetica, Arial, sans-serif;
+  background: #f2f2f2;
+  overflow: hidden;
+  transition: background 0.4s;
 }
 
-body{
-  margin:0;
-  font-family: system-ui, sans-serif;
-  background: linear-gradient(to bottom, var(--bg-top) 60%, var(--bg-bottom) 40%);
-  color:var(--text);
-  overflow:hidden;
+/* ---------------- SKY + WATER ---------------- */
+
+.sky {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  height: 65%;
+  background: #f2f2f2;
+  z-index: -3;
 }
 
-/* Top controls */
-.controls{
-  position:absolute;
-  top:15px;
-  left:15px;
-  display:flex;
-  gap:15px;
-  font-size:22px;
-  cursor:pointer;
+.water {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  height: 40%;
+  background: #6e9dc6;
+  z-index: -3;
 }
 
-/* Main window */
-.main-window{
-  width:700px;
-  margin:100px auto;
-  background:var(--window);
-  border-radius:12px;
-  box-shadow:0 6px 0 rgba(0,0,0,0.2);
-  overflow:hidden;
+/* SVG wave */
+.wave-svg {
+  position: fixed;
+  bottom: 35%;
+  width: 200%;
+  height: 150px;
+  z-index: -2;
+  animation: waveMove 10s linear infinite;
 }
 
-.window-header{
-  background:var(--header);
-  color:white;
-  padding:10px 15px;
-  font-weight:bold;
+@keyframes waveMove {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
 }
 
-.window-body{
-  padding:40px;
-  text-align:center;
+/* ---------------- STARS (DARK MODE) ---------------- */
+
+.stars {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  display: none;
+  z-index: -1;
 }
 
-.window-body h1{
-  font-size:48px;
-  margin-bottom:10px;
+.star {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: white;
+  border-radius: 50%;
+  opacity: 0.8;
 }
 
-.buttons{
-  margin-top:40px;
-  display:flex;
-  justify-content:center;
-  gap:40px;
+/* ---------------- TOP BAR ---------------- */
+
+.topbar {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 700px;
+  background: #4a4a4a;
+  color: white;
+  padding: 14px 20px;
+  border-radius: 6px;
+  z-index: 1000;
 }
 
-.icon-btn{
-  cursor:pointer;
-  text-align:center;
-  transition:transform .15s ease;
-}
-.icon-btn:hover{
-  transform:translateY(-3px);
+.topbar h1 {
+  font-size: 22px;
 }
 
-/* Sub windows */
-.sub-window{
-  position:absolute;
-  top:120px;
-  left:calc(50% - 300px);
-  width:600px;
-  background:var(--window);
-  border-radius:12px;
-  box-shadow:0 6px 0 rgba(0,0,0,0.2);
-  display:none;
+.topbar p {
+  font-size: 14px;
+  opacity: 0.8;
 }
 
-.sub-header{
-  background:var(--header);
-  color:white;
-  padding:10px 15px;
-  display:flex;
-  justify-content:space-between;
-  cursor:move;
+.toggle {
+  position: absolute;
+  right: 20px;
+  top: 14px;
+  cursor: pointer;
 }
 
-.sub-body{
-  padding:30px;
+/* ---------------- ICON BUTTONS ---------------- */
+
+.icon-bar {
+  position: fixed;
+  left: 40px;
+  top: 140px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
-/* Wave */
-.wave{
-  position:absolute;
-  bottom:0;
-  width:100%;
-}
-svg{
-  display:block;
-  width:100%;
-  height:200px;
+.icon {
+  background: white;
+  padding: 16px;
+  width: 160px;
+  cursor: pointer;
+  border-radius: 6px;
+  box-shadow: 0 5px 0 rgba(0,0,0,0.2);
+  transition: transform 0.1s;
 }
 
+.icon:hover {
+  transform: translateY(-3px);
+}
+
+.icon h3 {
+  font-size: 18px;
+}
+
+.icon span {
+  font-size: 13px;
+  opacity: 0.7;
+}
+
+/* ---------------- WINDOWS ---------------- */
+
+.window {
+  position: absolute;
+  width: 600px;
+  background: white;
+  border-radius: 6px;
+  box-shadow: 0 10px 0 rgba(0,0,0,0.2);
+  overflow: hidden;
+}
+
+.window-header {
+  background: #4a4a4a;
+  color: white;
+  padding: 12px;
+  cursor: move;
+  display: flex;
+  justify-content: space-between;
+}
+
+.window-content {
+  padding: 20px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.section-title {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.languages {
+  font-size: 16px;
+  margin-bottom: 20px;
+}
+
+/* ---------------- DARK MODE ---------------- */
+
+.dark body {
+  background: #1b1b1b;
+}
+
+.dark .sky {
+  background: #1b1b1b;
+}
+
+.dark .water {
+  background: #3a5c7a;
+}
+
+.dark .window {
+  background: #2a2a2a;
+  color: white;
+}
+
+.dark .icon {
+  background: #2a2a2a;
+  color: white;
+}
+
+.dark .stars {
+  display: block;
+}
+
+iframe {
+  width: 100%;
+  height: 300px;
+  margin-bottom: 20px;
+}
 </style>
 </head>
+
 <body>
 
-<div class="controls">
-  <span onclick="toggleTheme()">☀️</span>
-  <span onclick="toggleSound()">🔊</span>
-</div>
+<div class="sky"></div>
 
-<div class="main-window">
-  <div class="window-header">home</div>
-  <div class="window-body">
-    <h1>hi! i'm <span style="color:var(--accent)">micah</span></h1>
-    <p>programmer & climber</p>
-
-    <div class="buttons">
-      <div class="icon-btn" onclick="openWin('about')">about</div>
-      <div class="icon-btn" onclick="openWin('work')">work</div>
-      <div class="icon-btn" onclick="openWin('links')">links</div>
-      <div class="icon-btn" onclick="openWin('contact')">contact</div>
-    </div>
-  </div>
-</div>
-
-<!-- ABOUT -->
-<div class="sub-window" id="about">
-  <div class="sub-header">
-    about
-    <span onclick="closeWin('about')">[x]</span>
-  </div>
-  <div class="sub-body">
-    hi! i'm micah, a programmer and climber, i...
-    <ul>
-      <li>climb</li>
-      <li>do front-end and back-end development</li>
-      <li>am looking to learn more about cloud computing and cybersecurity</li>
-    </ul>
-  </div>
-</div>
-
-<!-- CONTACT -->
-<div class="sub-window" id="contact">
-  <div class="sub-header">
-    contact
-    <span onclick="closeWin('contact')">[x]</span>
-  </div>
-  <div class="sub-body">
-    the best way to contact me is via email:<br><br>
-    <strong>micahlimshengyao@gmail.com</strong>
-  </div>
-</div>
-
-<!-- WORK -->
-<div class="sub-window" id="work">
-  <div class="sub-header">
-    work
-    <span onclick="closeWin('work')">[x]</span>
-  </div>
-  <div class="sub-body">
-    <strong>development:</strong><br>
-    C++, C#, JavaScript, SQL, HTML/CSS
-    <br><br>
-
-    <button onclick="openWin('deus')">Deus de Magus</button>
-    <button onclick="openWin('think')">Think of the Kids</button>
-    <button onclick="openWin('sugar')">Sugar Strike</button>
-  </div>
-</div>
-
-<!-- Game windows -->
-<div class="sub-window" id="deus">
-  <div class="sub-header">
-    Deus de Magus
-    <span onclick="closeWin('deus')">[x]</span>
-  </div>
-  <div class="sub-body">
-    <video controls width="100%">
-      <source src="assets/deus-de-magus.mp4" type="video/mp4">
-    </video>
-  </div>
-</div>
-
-<div class="sub-window" id="think">
-  <div class="sub-header">
-    Think of the Kids
-    <span onclick="closeWin('think')">[x]</span>
-  </div>
-  <div class="sub-body">
-    <iframe width="100%" height="315"
-      src="https://www.youtube-nocookie.com/embed/XBQFmpW_NNg"
-      allowfullscreen>
-    </iframe>
-  </div>
-</div>
-
-<div class="sub-window" id="sugar">
-  <div class="sub-header">
-    Sugar Strike
-    <span onclick="closeWin('sugar')">[x]</span>
-  </div>
-  <div class="sub-body">
-    <iframe width="100%" height="315"
-      src="https://www.youtube-nocookie.com/embed/i1VNaxWlPes"
-      allowfullscreen>
-    </iframe>
-  </div>
-</div>
-
-<!-- LINKS -->
-<div class="sub-window" id="links">
-  <div class="sub-header">
-    links
-    <span onclick="closeWin('links')">[x]</span>
-  </div>
-  <div class="sub-body">
-    <a href="https://linkedin.com/in/micahlimsy" target="_blank">LinkedIn</a><br>
-    <a href="https://github.com/micahlimsy" target="_blank">GitHub</a><br>
-    <a href="#">Instagram</a><br>
-    <a href="#">Discord</a>
-  </div>
-</div>
-
-<!-- Wave -->
-<div class="wave">
-<svg viewBox="0 0 1440 320">
-<path fill="#6ba3d6" fill-opacity="1">
-  <animate attributeName="d" dur="5s" repeatCount="indefinite"
-    values="
-    M0,160L60,165C120,170,240,180,360,170C480,160,600,130,720,130C840,130,960,160,1080,170C1200,180,1320,170,1380,165L1440,160L1440,320L0,320Z;
-    M0,170L60,160C120,150,240,130,360,140C480,150,600,190,720,200C840,210,960,190,1080,170C1200,150,1320,130,1380,125L1440,120L1440,320L0,320Z;
-    M0,160L60,165C120,170,240,180,360,170C480,160,600,130,720,130C840,130,960,160,1080,170C1200,180,1320,170,1380,165L1440,160L1440,320L0,320Z
-    " />
-</path>
+<svg class="wave-svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+  <path d="M0,30 C150,80 350,-20 600,30 C850,80 1050,-20 1200,30 L1200,120 L0,120 Z"
+        fill="#6e9dc6"></path>
 </svg>
+
+<div class="water"></div>
+<div class="stars" id="stars"></div>
+
+<div class="topbar">
+  <h1>Micah Lim</h1>
+  <p>Programmer • Systems / Rendering / Input</p>
+  <div class="toggle" onclick="toggleMode()">☀️</div>
+</div>
+
+<div class="icon-bar">
+  <div class="icon" onclick="openWindow('about', event)">
+    <h3>About</h3>
+    <span>who i am</span>
+  </div>
+
+  <div class="icon" onclick="openWindow('work', event)">
+    <h3>Work</h3>
+    <span>projects</span>
+  </div>
+
+  <div class="icon" onclick="openWindow('links', event)">
+    <h3>Links</h3>
+    <span>socials</span>
+  </div>
+
+  <div class="icon" onclick="openWindow('contact', event)">
+    <h3>Contact</h3>
+    <span>email</span>
+  </div>
 </div>
 
 <script>
-function openWin(id){
-  document.getElementById(id).style.display='block';
+let zIndexCounter = 10;
+
+function openWindow(type, e) {
+  const win = document.createElement("div");
+  win.className = "window";
+  win.style.left = e.clientX + "px";
+  win.style.top = e.clientY + "px";
+  win.style.zIndex = zIndexCounter++;
+
+  win.innerHTML = `
+    <div class="window-header">
+      <span>${type}</span>
+      <span style="cursor:pointer" onclick="this.closest('.window').remove()">[x]</span>
+    </div>
+    <div class="window-content">
+      ${getContent(type)}
+    </div>
+  `;
+
+  document.body.appendChild(win);
+  makeDraggable(win);
 }
-function closeWin(id){
-  document.getElementById(id).style.display='none';
+
+function getContent(type) {
+  if(type === "about") {
+    return `
+      <p>hi! i'm micah, a programmer and climber, i...</p>
+      <ul>
+        <li>climb</li>
+        <li>do front-end and back-end development</li>
+        <li>am looking to learn more about cloud computing and cybersecurity</li>
+      </ul>
+    `;
+  }
+
+  if(type === "work") {
+    return `
+      <div class="section-title">Development</div>
+      <div class="languages">C++, C#, JavaScript, SQL, HTML/CSS</div>
+
+      <iframe src="https://www.youtube.com/embed/XBQFmpW_NNg" allowfullscreen></iframe>
+      <iframe src="https://www.youtube.com/embed/i1VNaxWlPes" allowfullscreen></iframe>
+    `;
+  }
+
+  if(type === "links") {
+    return `
+      <p><a href="https://linkedin.com/in/micahlimsy" target="_blank">LinkedIn</a></p>
+      <p><a href="https://github.com/micahlimsy" target="_blank">GitHub</a></p>
+      <p><a href="#">Instagram</a></p>
+      <p><a href="#">Discord</a></p>
+    `;
+  }
+
+  if(type === "contact") {
+    return `
+      <p>The best way to reach me is via email:</p>
+      <p><strong>micahlimshengyao@gmail.com</strong></p>
+    `;
+  }
 }
-function toggleTheme(){
-  document.body.classList.toggle("dark");
+
+function makeDraggable(el) {
+  const header = el.querySelector(".window-header");
+  let offsetX = 0, offsetY = 0, isDown = false;
+
+  header.onmousedown = function(e) {
+    isDown = true;
+    offsetX = el.offsetLeft - e.clientX;
+    offsetY = el.offsetTop - e.clientY;
+  };
+
+  document.onmouseup = function() {
+    isDown = false;
+  };
+
+  document.onmousemove = function(e) {
+    if (!isDown) return;
+    el.style.left = (e.clientX + offsetX) + "px";
+    el.style.top = (e.clientY + offsetY) + "px";
+  };
 }
-function toggleSound(){
-  alert("sound toggle placeholder");
+
+/* ----------- DARK MODE + STARS ----------- */
+
+function toggleMode() {
+  document.documentElement.classList.toggle("dark");
+  generateStars();
+}
+
+function generateStars() {
+  const stars = document.getElementById("stars");
+  stars.innerHTML = "";
+  for(let i = 0; i < 100; i++) {
+    const s = document.createElement("div");
+    s.className = "star";
+    s.style.left = Math.random() * 100 + "%";
+    s.style.top = Math.random() * 60 + "%";
+    stars.appendChild(s);
+  }
 }
 </script>
 
