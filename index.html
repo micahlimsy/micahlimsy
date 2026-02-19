@@ -1,603 +1,277 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Micah Lim — Game Projects</title>
-  <meta name="description" content="Micah Lim — game projects & systems engineering work." />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Micah Lim</title>
 
-  <style>
-    :root{
-      --bg:#0b0f14;
-      --panel:#101824cc;
-      --panelSolid:#101824;
-      --text:#eaf1ff;
-      --muted:#a9b6cc;
-      --accent:#7aa2ff;
-      --border:rgba(255,255,255,.14);
-      --shadow: 0 18px 60px rgba(0,0,0,.45);
-      --radius:18px;
-      --glassBlur: 12px;
-    }
+<style>
+:root{
+  --bg-top:#f2f2f2;
+  --bg-bottom:#8fb7d6;
+  --window:#ffffff;
+  --header:#4b4b4b;
+  --text:#333;
+  --accent:#ff8c00;
+}
 
-    /* Cute “desktop” */
-    *{ box-sizing:border-box; }
-    html, body { height:100%; }
-    body{
-      margin:0;
-      color:var(--text);
-      font: 15px/1.4 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
-      overflow:hidden;
-      background: var(--bg);
-    }
+.dark{
+  --bg-top:#1e1e1e;
+  --bg-bottom:#3c6a8f;
+  --window:#2c2c2c;
+  --header:#444;
+  --text:#eee;
+}
 
-    /* Vanta background target */
-    #bg {
-      position:fixed; inset:0;
-      z-index:0;
-    }
-    /* Soft overlay tint so text stays readable */
-    #tint{
-      position:fixed; inset:0;
-      z-index:1;
-      background:
-        radial-gradient(900px 500px at 20% 15%, rgba(122,162,255,.16), transparent 60%),
-        radial-gradient(900px 500px at 80% 20%, rgba(255,180,220,.10), transparent 60%),
-        linear-gradient(180deg, rgba(0,0,0,.25), rgba(0,0,0,.35));
-      pointer-events:none;
-    }
+body{
+  margin:0;
+  font-family: system-ui, sans-serif;
+  background: linear-gradient(to bottom, var(--bg-top) 60%, var(--bg-bottom) 40%);
+  color:var(--text);
+  overflow:hidden;
+}
 
-    .desktop{
-      position:relative;
-      z-index:2;
-      height:100%;
-      padding:18px;
-    }
+/* Top controls */
+.controls{
+  position:absolute;
+  top:15px;
+  left:15px;
+  display:flex;
+  gap:15px;
+  font-size:22px;
+  cursor:pointer;
+}
 
-    /* Top bar */
-    .topbar{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      padding:12px 14px;
-      border:1px solid var(--border);
-      border-radius: var(--radius);
-      background: rgba(16, 24, 36, .48);
-      backdrop-filter: blur(var(--glassBlur));
-      box-shadow: var(--shadow);
-      max-width: 1100px;
-      margin: 0 auto;
-    }
-    .title{
-      display:flex; flex-direction:column; gap:2px;
-    }
-    .title h1{
-      font-size:18px;
-      margin:0;
-      letter-spacing:.2px;
-    }
-    .title p{
-      margin:0;
-      color:var(--muted);
-      font-size:13px;
-    }
+/* Main window */
+.main-window{
+  width:700px;
+  margin:100px auto;
+  background:var(--window);
+  border-radius:12px;
+  box-shadow:0 6px 0 rgba(0,0,0,0.2);
+  overflow:hidden;
+}
 
-    .btn{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding:10px 12px;
-      border-radius:999px;
-      border:1px solid var(--border);
-      background: rgba(255,255,255,.06);
-      color:var(--text);
-      cursor:pointer;
-      user-select:none;
-    }
-    .btn:active{ transform: translateY(1px); }
+.window-header{
+  background:var(--header);
+  color:white;
+  padding:10px 15px;
+  font-weight:bold;
+}
 
-    /* Icon dock */
-    .dock{
-      max-width:1100px;
-      margin:14px auto 0;
-      padding:14px;
-      border-radius: var(--radius);
-      border:1px solid var(--border);
-      background: rgba(16, 24, 36, .35);
-      backdrop-filter: blur(var(--glassBlur));
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      box-shadow: var(--shadow);
-    }
-    .icon{
-      width: 168px;
-      border:1px solid var(--border);
-      border-radius:16px;
-      padding:12px;
-      background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.02));
-      cursor:pointer;
-      user-select:none;
-      transition: transform .12s ease;
-    }
-    .icon:hover{ transform: translateY(-1px); }
-    .icon strong{ display:block; margin-bottom:4px; }
-    .icon span{ display:block; color:var(--muted); font-size:13px; }
+.window-body{
+  padding:40px;
+  text-align:center;
+}
 
-    /* Windows container */
-    #windows{
-      position:absolute; inset:0;
-      z-index:3;
-      pointer-events:none; /* windows themselves will re-enable pointer-events */
-    }
+.window-body h1{
+  font-size:48px;
+  margin-bottom:10px;
+}
 
-    .window{
-      position:absolute;
-      width:min(920px, calc(100vw - 30px));
-      max-height: calc(100vh - 120px);
-      border-radius: 22px;
-      border:1px solid var(--border);
-      background: var(--panel);
-      backdrop-filter: blur(var(--glassBlur));
-      box-shadow: var(--shadow);
-      overflow:hidden;
-      display:none;
-      pointer-events:auto;
-    }
-    .window.show{ display:block; }
+.buttons{
+  margin-top:40px;
+  display:flex;
+  justify-content:center;
+  gap:40px;
+}
 
-    .winbar{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      padding:12px 12px 10px 14px;
-      background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.02));
-      border-bottom: 1px solid var(--border);
-      cursor: grab;
-      user-select:none;
-    }
-    .winbar:active{ cursor: grabbing; }
-    .winbar h2{
-      margin:0;
-      font-size:14px;
-      letter-spacing:.3px;
-      display:flex; align-items:center; gap:8px;
-    }
-    .controls{
-      display:flex; gap:8px; align-items:center;
-    }
-    .chip{
-      font-size:12px;
-      color:var(--muted);
-      border:1px solid var(--border);
-      background: rgba(255,255,255,.06);
-      padding:6px 10px;
-      border-radius:999px;
-    }
-    .close{
-      width:36px; height:36px;
-      border-radius:12px;
-      border:1px solid var(--border);
-      background: rgba(255,255,255,.06);
-      color:var(--text);
-      cursor:pointer;
-      font-size:18px;
-      line-height:1;
-    }
+.icon-btn{
+  cursor:pointer;
+  text-align:center;
+  transition:transform .15s ease;
+}
+.icon-btn:hover{
+  transform:translateY(-3px);
+}
 
-    .content{
-      padding:14px;
-      overflow:auto;
-      max-height: calc(100vh - 170px);
-    }
-    .muted{ color:var(--muted); }
+/* Sub windows */
+.sub-window{
+  position:absolute;
+  top:120px;
+  left:calc(50% - 300px);
+  width:600px;
+  background:var(--window);
+  border-radius:12px;
+  box-shadow:0 6px 0 rgba(0,0,0,0.2);
+  display:none;
+}
 
-    .proj{
-      border:1px solid var(--border);
-      border-radius:18px;
-      padding:14px;
-      background: rgba(255,255,255,.05);
-      margin:12px 0;
-    }
-    .proj h3{ margin:0 0 6px; }
-    .role{ color:var(--muted); font-size:13px; margin-top:2px; }
-    .proj ul{ margin:10px 0 0 18px; }
+.sub-header{
+  background:var(--header);
+  color:white;
+  padding:10px 15px;
+  display:flex;
+  justify-content:space-between;
+  cursor:move;
+}
 
-    .row{
-      display:grid;
-      grid-template-columns: 1fr;
-      gap:12px;
-    }
-    @media (min-width: 900px){
-      .row{ grid-template-columns: 1.1fr .9fr; }
-    }
+.sub-body{
+  padding:30px;
+}
 
-    .video{
-      border-radius:16px;
-      overflow:hidden;
-      border:1px solid var(--border);
-      background: rgba(0,0,0,.25);
-      min-height: 220px;
-    }
-    .video iframe, .video video{
-      width:100%;
-      height: 100%;
-      min-height: 220px;
-      display:block;
-      border:0;
-    }
+/* Wave */
+.wave{
+  position:absolute;
+  bottom:0;
+  width:100%;
+}
+svg{
+  display:block;
+  width:100%;
+  height:200px;
+}
 
-    a{ color:var(--accent); text-decoration:none; }
-    a:hover{ text-decoration:underline; }
-
-    .hint{
-      font-size:13px;
-      color:var(--muted);
-      margin-top:10px;
-    }
-  </style>
+</style>
 </head>
-
 <body>
-  <!-- Animated water background -->
-  <div id="bg" aria-hidden="true"></div>
-  <div id="tint" aria-hidden="true"></div>
 
-  <div class="desktop">
-    <div class="topbar">
-      <div class="title">
-        <h1>Micah Lim</h1>
-        <p>Game projects • Systems / Rendering / Input</p>
-      </div>
-      <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end;">
-        <button class="btn" id="toggleWaves">🌊 <span>Waves</span></button>
-        <button class="btn" id="closeAll">🧹 <span>Close all</span></button>
-      </div>
-    </div>
-
-  <div class="icon" data-open="deus">
-    <strong>Deus de Magus</strong>
-    <span>Technical Art / UI</span>
-  </div>
-  <div class="icon" data-open="think">
-    <strong>Think of the Kids</strong>
-    <span>Rendering & Animation</span>
-  </div>
-  <div class="icon" data-open="sugar">
-    <strong>Sugar Strike</strong>
-    <span>Input Systems</span>
-  </div>
-  <div class="icon" data-open="links">
-    <strong>Links</strong>
-    <span>GitHub / LinkedIn</span>
-  </div>
-
-
-<div id="windows">
-
-  <!-- DEUS DE MAGUS -->
-  <div class="window" id="win-deus" style="left: 8vw; top: 18vh;">
-    <div class="winbar">
-      <h2>🪄 Deus de Magus</h2>
-      <div class="controls">
-        <span class="chip">Technical Artist / UI</span>
-        <button class="close" data-close="deus">×</button>
-      </div>
-    </div>
-    <div class="content">
-
-      <div class="row">
-        <div>
-          <p class="muted">
-            Fantasy title focused on stylised pixel presentation and cohesive UI design.
-          </p>
-
-          <ul>
-            <li>Created all character assets, animation sets, and UI pixel art from concept to in-engine integration.</li>
-            <li>Designed UI/UX flow, menu systems, layout hierarchy, and interaction feedback.</li>
-            <li>Optimised sprite sheets and animation timing for runtime efficiency.</li>
-            <li>Worked closely with engineering to ensure UI systems aligned with gameplay state transitions.</li>
-          </ul>
-
-          <div class="hint">
-            Add your video file to <code>assets/deus-de-magus.mp4</code>
-          </div>
-        </div>
-
-        <div class="video">
-          <video controls preload="metadata">
-            <source src="assets/deus-de-magus.mp4" type="video/mp4">
-          </video>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-
-  <!-- THINK OF THE KIDS -->
-  <div class="window" id="win-think" style="left: 14vw; top: 12vh;">
-    <div class="winbar">
-      <h2>🧸 Think of the Kids</h2>
-      <div class="controls">
-        <span class="chip">Systems / Rendering / Animation</span>
-        <button class="close" data-close="think">×</button>
-      </div>
-    </div>
-    <div class="content">
-
-      <div class="row">
-        <div>
-          <ul>
-            <li>Architected animation pipeline and rendering infrastructure for runtime sprite updates.</li>
-            <li>Built animation state handling and timing systems integrated into gameplay logic.</li>
-            <li>Implemented rendering flow to support layered assets and scene composition.</li>
-            <li>Produced all art assets and ensured consistency between engine constraints and visual direction.</li>
-          </ul>
-
-          <div class="hint">
-            YouTube: <a href="https://youtu.be/XBQFmpW_NNg" target="_blank">Watch Demo</a>
-          </div>
-        </div>
-
-        <div class="video">
-          <iframe
-            src="https://www.youtube-nocookie.com/embed/XBQFmpW_NNg"
-            loading="lazy"
-            allowfullscreen>
-          </iframe>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-
-  <!-- SUGAR STRIKE -->
-  <div class="window" id="win-sugar" style="left: 20vw; top: 20vh;">
-    <div class="winbar">
-      <h2>🍭 Sugar Strike</h2>
-      <div class="controls">
-        <span class="chip">Systems / Input</span>
-        <button class="close" data-close="sugar">×</button>
-      </div>
-    </div>
-    <div class="content">
-
-      <div class="row">
-        <div>
-          <ul>
-            <li>Designed and implemented input handling architecture with event registration and action mapping.</li>
-            <li>Built flexible input registration system supporting clean separation between gameplay logic and device state.</li>
-            <li>Handled edge cases such as simultaneous inputs and state transitions.</li>
-            <li>Maintained development velocity under significant physical constraints during production.</li>
-          </ul>
-
-          <div class="hint">
-            YouTube: <a href="https://youtu.be/i1VNaxWlPes" target="_blank">Watch Demo</a>
-          </div>
-        </div>
-
-        <div class="video">
-          <iframe
-            src="https://www.youtube-nocookie.com/embed/i1VNaxWlPes"
-            loading="lazy"
-            allowfullscreen>
-          </iframe>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-
-  <!-- LINKS -->
-  <div class="window" id="win-links" style="left: 60vw; top: 18vh; width:min(520px,calc(100vw - 30px));">
-    <div class="winbar">
-      <h2>🔗 Links</h2>
-      <div class="controls">
-        <button class="close" data-close="links">×</button>
-      </div>
-    </div>
-    <div class="content">
-      <ul>
-        <li><a href="https://linkedin.com/in/micahlimsy" target="_blank">LinkedIn</a></li>
-        <li><a href="https://github.com/micahlimsy" target="_blank">GitHub</a></li>
-      </ul>
-    </div>
-  </div>
-
+<div class="controls">
+  <span onclick="toggleTheme()">☀️</span>
+  <span onclick="toggleSound()">🔊</span>
 </div>
 
-  <!-- Vanta dependencies + Waves effect -->
-  <!-- Vanta usage is documented as “drop in script tags + initialize on an element”. -->
-  <!-- Sources: Vanta site + GitHub + npm readme. -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r121/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.waves.min.js"></script>
+<div class="main-window">
+  <div class="window-header">home</div>
+  <div class="window-body">
+    <h1>hi! i'm <span style="color:var(--accent)">micah</span></h1>
+    <p>programmer & climber</p>
 
-  <script>
-    // --- Window system (open/close + draggable + focus) ---
-    const windowsRoot = document.getElementById("windows");
-    const icons = document.querySelectorAll(".icon[data-open]");
-    const closeBtns = document.querySelectorAll("button[data-close]");
-    const closeAllBtn = document.getElementById("closeAll");
+    <div class="buttons">
+      <div class="icon-btn" onclick="openWin('about')">about</div>
+      <div class="icon-btn" onclick="openWin('work')">work</div>
+      <div class="icon-btn" onclick="openWin('links')">links</div>
+      <div class="icon-btn" onclick="openWin('contact')">contact</div>
+    </div>
+  </div>
+</div>
 
-  const winMap = {
-    deus: document.getElementById("win-deus"),
-    think: document.getElementById("win-think"),
-    sugar: document.getElementById("win-sugar"),
-    links: document.getElementById("win-links"),
-  };
+<!-- ABOUT -->
+<div class="sub-window" id="about">
+  <div class="sub-header">
+    about
+    <span onclick="closeWin('about')">[x]</span>
+  </div>
+  <div class="sub-body">
+    hi! i'm micah, a programmer and climber, i...
+    <ul>
+      <li>climb</li>
+      <li>do front-end and back-end development</li>
+      <li>am looking to learn more about cloud computing and cybersecurity</li>
+    </ul>
+  </div>
+</div>
 
+<!-- CONTACT -->
+<div class="sub-window" id="contact">
+  <div class="sub-header">
+    contact
+    <span onclick="closeWin('contact')">[x]</span>
+  </div>
+  <div class="sub-body">
+    the best way to contact me is via email:<br><br>
+    <strong>micahlimshengyao@gmail.com</strong>
+  </div>
+</div>
 
-    let zTop = 10;
+<!-- WORK -->
+<div class="sub-window" id="work">
+  <div class="sub-header">
+    work
+    <span onclick="closeWin('work')">[x]</span>
+  </div>
+  <div class="sub-body">
+    <strong>development:</strong><br>
+    C++, C#, JavaScript, SQL, HTML/CSS
+    <br><br>
 
-    function showWin(key){
-      const w = winMap[key];
-      if(!w) return;
-      w.classList.add("show");
-      focusWin(w);
-      // Nudge into view if somehow offscreen
-      clampToViewport(w);
-    }
+    <button onclick="openWin('deus')">Deus de Magus</button>
+    <button onclick="openWin('think')">Think of the Kids</button>
+    <button onclick="openWin('sugar')">Sugar Strike</button>
+  </div>
+</div>
 
-    function hideWin(key){
-      const w = winMap[key];
-      if(!w) return;
-      w.classList.remove("show");
-    }
+<!-- Game windows -->
+<div class="sub-window" id="deus">
+  <div class="sub-header">
+    Deus de Magus
+    <span onclick="closeWin('deus')">[x]</span>
+  </div>
+  <div class="sub-body">
+    <video controls width="100%">
+      <source src="assets/deus-de-magus.mp4" type="video/mp4">
+    </video>
+  </div>
+</div>
 
-    function focusWin(w){
-      zTop += 1;
-      w.style.zIndex = String(zTop);
-    }
+<div class="sub-window" id="think">
+  <div class="sub-header">
+    Think of the Kids
+    <span onclick="closeWin('think')">[x]</span>
+  </div>
+  <div class="sub-body">
+    <iframe width="100%" height="315"
+      src="https://www.youtube-nocookie.com/embed/XBQFmpW_NNg"
+      allowfullscreen>
+    </iframe>
+  </div>
+</div>
 
-    function clampToViewport(w){
-      const rect = w.getBoundingClientRect();
-      let left = rect.left;
-      let top = rect.top;
+<div class="sub-window" id="sugar">
+  <div class="sub-header">
+    Sugar Strike
+    <span onclick="closeWin('sugar')">[x]</span>
+  </div>
+  <div class="sub-body">
+    <iframe width="100%" height="315"
+      src="https://www.youtube-nocookie.com/embed/i1VNaxWlPes"
+      allowfullscreen>
+    </iframe>
+  </div>
+</div>
 
-      const pad = 10;
-      const maxLeft = window.innerWidth - rect.width - pad;
-      const maxTop  = window.innerHeight - rect.height - pad;
+<!-- LINKS -->
+<div class="sub-window" id="links">
+  <div class="sub-header">
+    links
+    <span onclick="closeWin('links')">[x]</span>
+  </div>
+  <div class="sub-body">
+    <a href="https://linkedin.com/in/micahlimsy" target="_blank">LinkedIn</a><br>
+    <a href="https://github.com/micahlimsy" target="_blank">GitHub</a><br>
+    <a href="#">Instagram</a><br>
+    <a href="#">Discord</a>
+  </div>
+</div>
 
-      left = Math.min(Math.max(left, pad), Math.max(pad, maxLeft));
-      top  = Math.min(Math.max(top, pad), Math.max(pad, maxTop));
+<!-- Wave -->
+<div class="wave">
+<svg viewBox="0 0 1440 320">
+<path fill="#6ba3d6" fill-opacity="1">
+  <animate attributeName="d" dur="5s" repeatCount="indefinite"
+    values="
+    M0,160L60,165C120,170,240,180,360,170C480,160,600,130,720,130C840,130,960,160,1080,170C1200,180,1320,170,1380,165L1440,160L1440,320L0,320Z;
+    M0,170L60,160C120,150,240,130,360,140C480,150,600,190,720,200C840,210,960,190,1080,170C1200,150,1320,130,1380,125L1440,120L1440,320L0,320Z;
+    M0,160L60,165C120,170,240,180,360,170C480,160,600,130,720,130C840,130,960,160,1080,170C1200,180,1320,170,1380,165L1440,160L1440,320L0,320Z
+    " />
+</path>
+</svg>
+</div>
 
-      w.style.left = left + "px";
-      w.style.top  = top + "px";
-    }
+<script>
+function openWin(id){
+  document.getElementById(id).style.display='block';
+}
+function closeWin(id){
+  document.getElementById(id).style.display='none';
+}
+function toggleTheme(){
+  document.body.classList.toggle("dark");
+}
+function toggleSound(){
+  alert("sound toggle placeholder");
+}
+</script>
 
-    icons.forEach(ic => {
-      ic.addEventListener("click", () => showWin(ic.dataset.open));
-    });
-
-    closeBtns.forEach(btn => {
-      btn.addEventListener("click", () => hideWin(btn.dataset.close));
-    });
-
-    closeAllBtn.addEventListener("click", () => {
-      Object.keys(winMap).forEach(hideWin);
-    });
-
-    // Click-to-focus on any window
-    Object.values(winMap).forEach(w => {
-      w.addEventListener("mousedown", () => focusWin(w));
-      w.addEventListener("touchstart", () => focusWin(w), {passive:true});
-    });
-
-    // Draggable windows (drag from winbar)
-    function makeDraggable(winEl){
-      const bar = winEl.querySelector(".winbar");
-      if(!bar) return;
-
-      let dragging = false;
-      let startX = 0, startY = 0;
-      let startLeft = 0, startTop = 0;
-
-      const onDown = (clientX, clientY) => {
-        dragging = true;
-        focusWin(winEl);
-        const rect = winEl.getBoundingClientRect();
-        startX = clientX;
-        startY = clientY;
-        startLeft = rect.left;
-        startTop = rect.top;
-      };
-
-      const onMove = (clientX, clientY) => {
-        if(!dragging) return;
-        const dx = clientX - startX;
-        const dy = clientY - startY;
-        winEl.style.left = (startLeft + dx) + "px";
-        winEl.style.top  = (startTop + dy) + "px";
-      };
-
-      const onUp = () => {
-        if(!dragging) return;
-        dragging = false;
-        clampToViewport(winEl);
-      };
-
-      bar.addEventListener("mousedown", (e) => {
-        // prevent text selection while dragging
-        e.preventDefault();
-        onDown(e.clientX, e.clientY);
-        window.addEventListener("mousemove", mouseMove);
-        window.addEventListener("mouseup", mouseUp, { once:true });
-      });
-
-      const mouseMove = (e) => onMove(e.clientX, e.clientY);
-      const mouseUp = () => {
-        window.removeEventListener("mousemove", mouseMove);
-        onUp();
-      };
-
-      // Touch support
-      bar.addEventListener("touchstart", (e) => {
-        const t = e.touches[0];
-        onDown(t.clientX, t.clientY);
-      }, {passive:true});
-
-      bar.addEventListener("touchmove", (e) => {
-        if(!dragging) return;
-        const t = e.touches[0];
-        onMove(t.clientX, t.clientY);
-      }, {passive:true});
-
-      bar.addEventListener("touchend", () => onUp(), {passive:true});
-      bar.addEventListener("touchcancel", () => onUp(), {passive:true});
-    }
-
-    Object.values(winMap).forEach(makeDraggable);
-
-    window.addEventListener("resize", () => {
-      Object.values(winMap).forEach(w => w.classList.contains("show") && clampToViewport(w));
-    });
-
-    // Open your main window by default (cute “boot” feel)
-    showWin("projects");
-    showWin("links");
-
-    // --- Vanta Waves background ---
-    let waves = null;
-    let wavesOn = true;
-    const toggleWavesBtn = document.getElementById("toggleWaves");
-
-    function startWaves(){
-      if(waves) return;
-      waves = VANTA.WAVES({
-        el: "#bg",
-        mouseControls: true,
-        touchControls: true,
-        gyroControls: false,
-        minHeight: 200.00,
-        minWidth: 200.00,
-        scale: 1.00,
-        scaleMobile: 1.00,
-        shininess: 35.00,
-        waveHeight: 14.00,
-        waveSpeed: 0.70,
-        zoom: 0.95
-      });
-    }
-
-    function stopWaves(){
-      if(!waves) return;
-      waves.destroy();
-      waves = null;
-    }
-
-    toggleWavesBtn.addEventListener("click", () => {
-      wavesOn = !wavesOn;
-      if(wavesOn) startWaves();
-      else stopWaves();
-      toggleWavesBtn.innerHTML = (wavesOn ? "🌊" : "🫧") + " <span>Waves</span>";
-    });
-
-    startWaves();
-  </script>
 </body>
 </html>
