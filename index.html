@@ -43,12 +43,18 @@ body {
   width:200%;
   height:150px;
   z-index:-2;
-  animation: waveMove 10s linear infinite;
+  animation: waveMove 14s ease-in-out infinite alternate;
 }
+
 
 @keyframes waveMove {
   from { transform: translateX(0); }
   to { transform: translateX(-50%); }
+}
+
+@keyframes fadeOut {
+  from { opacity:1; transform: scale(1); }
+  to   { opacity:0; transform: scale(0.96); }
 }
 
 /* -------- STARS -------- */
@@ -68,7 +74,16 @@ body {
   height:2px;
   background:white;
   border-radius:50%;
+  opacity:0.8;
+  animation: twinkle 2s infinite ease-in-out;
 }
+
+@keyframes twinkle {
+  0%   { opacity:0.3; }
+  50%  { opacity:1; }
+  100% { opacity:0.3; }
+}
+
 
 /* -------- CENTRAL PANE -------- */
 
@@ -103,7 +118,13 @@ body {
 
 .center-content h1 span {
   color:#f28c00;
+  transition: text-shadow 0.3s ease;
 }
+
+.center-content h1 span:hover {
+  text-shadow: 0 0 10px rgba(242,140,0,0.6);
+}
+
 
 .center-content p {
   font-size:18px;
@@ -119,7 +140,14 @@ body {
 .nav-links span {
   cursor:pointer;
   font-size:16px;
+  transition: transform 0.15s ease, opacity 0.15s ease;
 }
+
+.nav-links span:hover {
+  transform: translateY(-3px);
+  opacity: 0.7;
+}
+
 
 .nav-links span:hover {
   text-decoration:underline;
@@ -130,11 +158,26 @@ body {
 .window {
   position:absolute;
   width:600px;
+  height:600px;
   background:white;
   border-radius:6px;
-  box-shadow:0 10px 0 rgba(0,0,0,0.2);
+  box-shadow:0 14px 0 rgba(0,0,0,0.18);
   overflow:hidden;
+  animation: popIn 0.18s ease-out;
 }
+
+@keyframes popIn {
+  from {
+    transform: scale(0.96);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+
 
 .window-header {
   background:#4a4a4a;
@@ -147,8 +190,12 @@ body {
 
 .window-content {
   padding:20px;
-  max-height:400px;
+  height:calc(100% - 48px);  /* fills square under header */
   overflow-y:auto;
+}
+
+.window-content img:hover {
+  transform: translateY(-5px);
 }
 
 .section-title {
@@ -204,11 +251,11 @@ iframe {
   </div>
   <div class="center-content">
     <h1>hi! i'm <span>micah</span></h1>
-    <p>programmer & climber</p>
+    <p>a programmer and climber</p>
 
     <div class="nav-links">
       <span onclick="openWindow('about', event)">about</span>
-      <span onclick="openWindow('work', event)">work</span>
+      <span onclick="openWindow('works', event)">works</span>
       <span onclick="openWindow('links', event)">links</span>
       <span onclick="openWindow('contact', event)">contact</span>
     </div>
@@ -218,17 +265,39 @@ iframe {
 <script>
 let zIndexCounter = 10;
 
+let windowCount = 0;
+
+function closeWindow(el){
+  const win = el.closest('.window');
+  win.style.animation = "fadeOut 0.15s ease forwards";
+  setTimeout(() => {
+    win.remove();
+  }, 140);
+}
+
 function openWindow(type, e) {
   const win = document.createElement("div");
   win.className = "window";
-  win.style.left = (window.innerWidth/2 - 300) + "px";
-  win.style.top = (window.innerHeight/2 - 200) + "px";
+
+  const offset = windowCount * 30;
+
+  let left = (window.innerWidth / 2 - 300) + offset;
+  let top  = (window.innerHeight / 2 - 300) + offset;
+
+  // Prevent off-screen spawn
+  left = Math.min(left, window.innerWidth - 620);
+  top  = Math.min(top, window.innerHeight - 620);
+
+  win.style.left = left + "px";
+  win.style.top = top + "px";
   win.style.zIndex = zIndexCounter++;
+
+  windowCount++;
 
   win.innerHTML = `
     <div class="window-header">
       <span>${type}</span>
-      <span style="cursor:pointer" onclick="this.closest('.window').remove()">[x]</span>
+      <span style="cursor:pointer" onclick="closeWindow(this)">[x]</span>
     </div>
     <div class="window-content">
       ${getContent(type)}
@@ -236,37 +305,58 @@ function openWindow(type, e) {
   `;
 
   document.body.appendChild(win);
+
+  win.addEventListener("mousedown", () => {
+    win.style.zIndex = zIndexCounter++;
+  });
+
   makeDraggable(win);
 }
+
 
 function getContent(type) {
   if(type === "about") {
     return `
-      <p>hi! i'm micah, a programmer and climber, i...</p>
+      <p>Hi! I'm micah, an aspiring software engineer and a avid rock climber, i...</p>
       <ul>
-        <li>climb</li>
+        <li>climb. a lot</li>
         <li>do front-end and back-end development</li>
         <li>am looking to learn more about cloud computing and cybersecurity</li>
       </ul>
     `;
   }
 
-  if(type === "work") {
-    return `
-      <div class="section-title">Development</div>
-      <div class="languages">C++, C#, JavaScript, SQL, HTML/CSS</div>
+  if(type === "works") {
+  return `
+    <div class="section-title">Development Tools</div>
+    <div class="languages">C++, C#, JavaScript, SQL, HTML/CSS</div>
 
-      <iframe src="https://www.youtube.com/embed/XBQFmpW_NNg" allowfullscreen></iframe>
-      <iframe src="https://www.youtube.com/embed/i1VNaxWlPes" allowfullscreen></iframe>
-    `;
-  }
+    <div class="section-title">Projects</div>
+
+    <iframe src="https://www.youtube.com/embed/qfMJAkGi8Vk" allowfullscreen></iframe>
+    <iframe src="https://www.youtube.com/embed/XBQFmpW_NNg" allowfullscreen></iframe>
+    <iframe src="https://www.youtube.com/embed/i1VNaxWlPes" allowfullscreen></iframe>
+  `;
+}
+
 
   if(type === "links") {
-    return `
-      <p><a href="https://linkedin.com/in/micahlimsy" target="_blank">LinkedIn</a></p>
-      <p><a href="https://github.com/micahlimsy" target="_blank">GitHub</a></p>
-    `;
-  }
+  return `
+    <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%;">
+      <div style="display:flex; gap:80px;">
+        <a href="https://linkedin.com/in/micahlimsy" target="_blank">
+          <img src="assets/linkedin.png" style="width:110px; cursor:pointer; transition:transform 0.2s ease;">
+        </a>
+
+        <a href="https://github.com/micahlimsy" target="_blank">
+          <img src="assets/github.png" style="width:110px; cursor:pointer;">
+        </a>
+      </div>
+    </div>
+  `;
+}
+
+
 
   if(type === "contact") {
     return `
@@ -310,9 +400,11 @@ function generateStars(){
     s.className="star";
     s.style.left=Math.random()*100+"%";
     s.style.top=Math.random()*60+"%";
+    s.style.animationDelay = Math.random() * 2 + "s";
     stars.appendChild(s);
   }
 }
+
 </script>
 
 </body>
