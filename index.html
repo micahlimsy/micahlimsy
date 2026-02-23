@@ -92,7 +92,8 @@ body {
   top:45%;
   left:50%;
   transform:translate(-50%, -50%);
-  width:650px;
+  width:90%;            /* Changed to relative width for mobile */
+  max-width:650px;      /* Retained desktop size as a limit */
   background:white;
   border-radius:6px;
   box-shadow:0 10px 0 rgba(0,0,0,0.2);
@@ -107,7 +108,7 @@ body {
 }
 
 .center-content {
-  padding:40px;
+  padding:40px 20px; /* Reduced side padding slightly for mobile */
   text-align:center;
 }
 
@@ -134,7 +135,8 @@ body {
 .nav-links {
   display:flex;
   justify-content:center;
-  gap:30px;
+  flex-wrap: wrap; /* Allows wrapping on very small screens */
+  gap:20px;
 }
 
 .nav-links span {
@@ -157,8 +159,10 @@ body {
 
 .window {
   position:absolute;
-  width:600px;
-  height:600px;
+  width:90%;           /* Changed to responsive width */
+  max-width:600px;     /* Retain desktop size */
+  height:80vh;         /* Limit height to viewport */
+  max-height:600px;
   background:white;
   border-radius:6px;
   box-shadow:0 14px 0 rgba(0,0,0,0.18);
@@ -186,11 +190,12 @@ body {
   cursor:move;
   display:flex;
   justify-content:space-between;
+  user-select: none; /* Prevents text highlighting while dragging */
 }
 
 .window-content {
   padding:20px;
-  height:calc(100% - 48px);  /* fills square under header */
+  height:calc(100% - 48px);
   overflow-y:auto;
 }
 
@@ -211,7 +216,8 @@ body {
 
 iframe {
   width:100%;
-  height:300px;
+  aspect-ratio: 16 / 9; /* Replaces fixed height so videos scale properly */
+  height: auto;
   margin-bottom:20px;
 }
 
@@ -228,6 +234,16 @@ iframe {
   right:20px;
   top:15px;
   cursor:pointer;
+}
+
+/* -------- MOBILE SPECIFIC ADJUSTMENTS -------- */
+@media (max-width: 600px) {
+  .center-content h1 {
+    font-size: 30px;
+  }
+  .center-content p {
+    font-size: 16px;
+  }
 }
 </style>
 </head>
@@ -281,12 +297,18 @@ function openWindow(type, e) {
 
   const offset = windowCount * 30;
 
-  let left = (window.innerWidth / 2 - 300) + offset;
-  let top  = (window.innerHeight / 2 - 300) + offset;
+  // Determine window dimensions for mobile bounding limits
+  const isMobile = window.innerWidth <= 600;
+  const winWidth = isMobile ? window.innerWidth * 0.9 : 600;
+  const winHeight = isMobile ? window.innerHeight * 0.8 : 600;
 
-  // Prevent off-screen spawn
-  left = Math.min(left, window.innerWidth - 620);
-  top  = Math.min(top, window.innerHeight - 620);
+  // Start by trying to center the window
+  let left = (window.innerWidth / 2 - winWidth / 2) + offset;
+  let top  = (window.innerHeight / 2 - winHeight / 2) + offset;
+
+  // Prevent off-screen spawn horizontally and vertically
+  left = Math.max(10, Math.min(left, window.innerWidth - winWidth - 10));
+  top  = Math.max(10, Math.min(top, window.innerHeight - winHeight - 10));
 
   win.style.left = left + "px";
   win.style.top = top + "px";
@@ -309,6 +331,9 @@ function openWindow(type, e) {
   win.addEventListener("mousedown", () => {
     win.style.zIndex = zIndexCounter++;
   });
+  win.addEventListener("touchstart", () => {
+    win.style.zIndex = zIndexCounter++;
+  }, {passive: true});
 
   makeDraggable(win);
 }
@@ -345,11 +370,11 @@ function getContent(type) {
     <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%;">
       <div style="display:flex; gap:80px;">
         <a href="https://linkedin.com/in/micahlimsy" target="_blank">
-          <img src="assets/linkedin.png" style="width:110px; cursor:pointer; transition:transform 0.2s ease;">
+          <img src="assets/linkedin.png" style="width:110px; max-width: 25vw; cursor:pointer; transition:transform 0.2s ease;">
         </a>
 
         <a href="https://github.com/micahlimsy" target="_blank">
-          <img src="assets/github.png" style="width:110px; cursor:pointer;">
+          <img src="assets/github.png" style="width:110px; max-width: 25vw; cursor:pointer;">
         </a>
       </div>
     </div>
@@ -370,19 +395,34 @@ function makeDraggable(el) {
   const header = el.querySelector(".window-header");
   let offsetX=0, offsetY=0, isDown=false;
 
-  header.onmousedown = function(e){
-    isDown=true;
+  // Mouse Events for Desktop
+  header.addEventListener("mousedown", function(e) {
+    isDown = true;
     offsetX = el.offsetLeft - e.clientX;
     offsetY = el.offsetTop - e.clientY;
-  };
+  });
 
-  document.onmouseup = function(){ isDown=false; };
+  // Touch Events for Mobile
+  header.addEventListener("touchstart", function(e) {
+    isDown = true;
+    offsetX = el.offsetLeft - e.touches[0].clientX;
+    offsetY = el.offsetTop - e.touches[0].clientY;
+  }, {passive: true});
 
-  document.onmousemove = function(e){
+  document.addEventListener("mouseup", function() { isDown = false; });
+  document.addEventListener("touchend", function() { isDown = false; });
+
+  document.addEventListener("mousemove", function(e) {
     if(!isDown) return;
     el.style.left = (e.clientX + offsetX) + "px";
     el.style.top = (e.clientY + offsetY) + "px";
-  };
+  });
+
+  document.addEventListener("touchmove", function(e) {
+    if(!isDown) return;
+    el.style.left = (e.touches[0].clientX + offsetX) + "px";
+    el.style.top = (e.touches[0].clientY + offsetY) + "px";
+  }, {passive: true});
 }
 
 /* DARK MODE + STARS */
