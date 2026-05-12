@@ -5,7 +5,7 @@
 - **Age/Age Range:** 20–25 years old [2026-01-22]
 - **Location:** Based in Singapore; spent May–July 2025 on university exchange in Bilbao, Spain; traveled extensively through Italy (Rome, Amalfi, Florence, Verona, Dolomites) in April/May 2025. [2025-03 to 2025-07]
 - **Education:** Computer Science student at DigiPen Singapore (CSD 2126) [2024-09-18].
-- **Physical Condition:** Recovering from a severe knee injury sustained in a bouldering competition (Aug 2024). Injury involved a "bad fracture," full dislocation, and tearing of all 4 ligaments, meniscus, cartilage, and tendons. Requires a metal plate and extensive ongoing rehab. [2024-08-26, 2026-03-11]
+- **Physical Condition:** Recovering from a severe knee injury sustained in a bouldering competition (Aug 2024). Injury involved a "bad fracture," full dislocation, and tearing of 3 ligaments (ACL, LCL, PCL), meniscus, cartilage, and tendons. Requires a metal plate with 6 screws and extensive ongoing rehab. [2024-08-26, 2026-03-11]
 - **Native Language:** English [inferred].
 - **Other Languages:** Italian (basic conversation level) [2026-03-11].
 
@@ -14,7 +14,7 @@
 - **Format:** Prefers raw code output directly in chat.
   - "stop answering in chat. answer here directly, it is very hard to pull code from the chat editor interface" [2025-04-02].
   - "give me the code in chat. i want the returned code to me to be in one part, do not split it into different parts" [2025-06-21].
-- **Explanations:** Prefers detailed, layman-term explanations for complex assignments.
+- **Explanations:** Prefers detailed, layman-term explanations for complex assignments/tasks.
   - "Pls explain to me in layman terms what this assignment is asking for me, what i'm supposed to implement and learn from doing said implementation" [2026-01-19].
 - **No Sycophancy:** "Don’t be sycophantic in your reply." [2025-11-09].
 - **Permission for Deviations:** "if you want to do so [stray from specifications], inform me and get my permission first." [2025-06-21].
